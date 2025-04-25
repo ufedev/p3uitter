@@ -34,7 +34,7 @@ export const Usuario = sequelize.define("usuario", {
     },
     estado: {
         type: DataTypes.BOOLEAN,
-        default: 0
+        default: false
     }
 })
 

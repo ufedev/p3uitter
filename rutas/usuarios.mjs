@@ -1,4 +1,3 @@
-import { sequelize } from '../config/db.mjs'
 import { Router } from 'express'
 import { Usuario } from '../models/usuarios.mjs'
 import bcrypt from 'bcrypt'
@@ -8,17 +7,29 @@ import md5 from 'md5'
 
 export const usuarioRutas = Router()
 
+/*
+/api/usuario/crear
 
+*/
 usuarioRutas.get("/obtener", async (req, res) => {
+
 
     const usuarios = await Usuario.findAll()
 
     res.json(usuarios)
 
 })
-usuarioRutas.post('/crear', async (req, res) => {
 
+//post put patch reciben body en la solicitud
+/*
+ localhost:54654/api/usuarios/crear
+*/
+usuarioRutas.post('/crear', async (req, res) => {
+    // req = request = solicitud
+    // res = response = respuesta
     const body = req.body
+
+
     try {
         const { nombre, apellido, dni, email, password, rePassword } = body
 
@@ -33,33 +44,28 @@ usuarioRutas.post('/crear', async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10)
-        const passwordHash = await bcrypt.hash(password, salt)
-        const token = md5('123456')
-        res.json({
-            password,
-            passwordHash,
-            length: passwordHash.length,
-            md5: token,
-            md5length: token.length
-        })
-
+        const passwordHash = await bcrypt.hash(password, salt) // 60caracteres siempreee
+        const date = new Date()
+        const token = md5(date)
+        // 32 caracteres
 
         const nuevoUsuario = await Usuario.create({
-            nombre: nombre,
             apellido: apellido,
-            dni: dni,
+            token: token,
             email: email,
-            password: passwordHash
+            dni: dni,
+            password: passwordHash,
+            nombre: nombre
         })
 
         await nuevoUsuario.save()
 
 
-        res.json("Uusario creado con exitosidad")
+        res.json("usuario creado con exito! 👍")
     }
-    catch {
+    catch (error) {
 
-        res.json('Ya está registrado el usuario')
+        res.json(error.message)
     }
 
 })
